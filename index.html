@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Always Ready — Presuppositional Apologetics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:      #4caa74;
+      --green-dim:  #2f7a52;
+      --green-bg:   rgba(76,170,116,0.1);
+      --dark:       #0c0f14;
+      --dark2:      #12161e;
+      --dark3:      #1a1f2b;
+      --border:     #2a2f3d;
+      --text:       #e8e0d0;
+      --muted:      #7a7f8e;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--dark);
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--dark2);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 58px;
+      flex-shrink: 0;
+    }
+    .logo {
+      font-family: 'Cinzel', serif;
+      color: var(--green);
+      font-size: 17px;
+      letter-spacing: 0.14em;
+      font-weight: 600;
+    }
+    .tagline {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.07em;
+      font-style: italic;
+      margin-top: 2px;
+    }
+    nav {
+      margin-left: auto;
+      display: flex;
+      gap: 4px;
+    }
+    .nav-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 6px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      transition: all 0.2s;
+    }
+    .nav-btn:hover { color: var(--text); border-color: var(--border); }
+    .nav-btn.active {
+      background: var(--green-bg);
+      border-color: var(--green-dim);
+      color: var(--green);
+    }
+
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 880px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 28px 20px;
+    }
+
+    /* ── TABS ── */
+    .tab { display: none; flex-direction: column; flex: 1; }
+    .tab.active { display: flex; }
+
+    /* ── CHAT ── */
+    #chat-messages {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding-bottom: 8px;
+      min-height: 300px;
+    }
+
+    .chat-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 60px 0;
+      text-align: center;
+    }
+    .chat-empty-icon { font-size: 40px; color: var(--green); }
+    .chat-empty-title { font-family: 'Cinzel', serif; color: var(--green); font-size: 22px; letter-spacing: 0.1em; }
+    .chat-empty-text { color: var(--muted); font-size: 15px; max-width: 460px; line-height: 1.75; }
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 8px;
+    }
+    .sugg-btn {
+      background: var(--dark3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: 'Crimson Pro', serif;
+      transition: border-color 0.2s;
+    }
+    .sugg-btn:hover { border-color: var(--green-dim); }
+
+    .msg-user {
+      align-self: flex-end;
+      background: var(--green-bg);
+      border: 1px solid var(--green-dim);
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: 12px 12px 2px 12px;
+      max-width: 78%;
+      line-height: 1.75;
+      font-size: 15px;
+    }
+    .msg-ai {
+      align-self: flex-start;
+      background: var(--dark3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 14px 18px;
+      border-radius: 2px 12px 12px 12px;
+      max-width: 85%;
+      line-height: 1.85;
+      font-size: 15px;
+      white-space: pre-wrap;
+    }
+    .msg-typing {
+      align-self: flex-start;
+      background: var(--dark3);
+      border: 1px solid var(--border);
+      padding: 14px 18px;
+      border-radius: 2px 12px 12px 12px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green-dim);
+      animation: bounce 1.2s infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%,80%,100% { transform: translateY(0); }
+      40% { transform: translateY(-6px); }
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+      position: sticky;
+      bottom: 0;
+      background: var(--dark);
+      padding-top: 8px;
+    }
+    #chat-input {
+      flex: 1;
+      background: var(--dark3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 15px;
+      font-family: 'Crimson Pro', serif;
+      outline: none;
+      resize: none;
+      line-height: 1.5;
+      transition: border-color 0.2s;
+    }
+    #chat-input:focus { border-color: var(--green-dim); }
+    #send-btn {
+      background: var(--green);
+      color: #0c0f14;
+      border: none;
+      border-radius: 6px;
+      padding: 0 22px;
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      font-weight: 700;
+      transition: opacity 0.2s;
+    }
+    #send-btn:disabled { opacity: 0.5; cursor: default; }
+
+    /* ── TOPICS ── */
+    .topics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .topic-card {
+      background: var(--dark2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .topic-card:hover { border-color: var(--green-dim); }
+    .topic-card.selected { background: var(--dark3); border-color: var(--green-dim); }
+    .topic-icon { font-size: 22px; color: var(--green); margin-bottom: 8px; }
+    .topic-title { font-family: 'Cinzel', serif; color: var(--text); font-size: 13px; letter-spacing: 0.06em; margin-bottom: 4px; }
+    .topic-sub { color: var(--muted); font-size: 12px; font-style: italic; }
+
+    .topic-detail {
+      background: var(--dark2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 28px;
+    }
+    .detail-title { font-family: 'Cinzel', serif; color: var(--green); font-size: 18px; letter-spacing: 0.08em; margin-bottom: 4px; }
+    .detail-sub { color: var(--muted); font-size: 13px; font-style: italic; margin-bottom: 20px; }
+    .section-label {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      color: var(--green-dim);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      margin-top: 22px;
+    }
+    .body-text { color: var(--text); font-size: 15px; line-height: 1.85; }
+    .obj-card { background: var(--dark3); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; margin-bottom: 8px; }
+    .obj-q { color: var(--text); font-size: 14px; margin-bottom: 6px; font-style: italic; }
+    .obj-a { color: var(--muted); font-size: 14px; line-height: 1.75; }
+    .reading-item { color: var(--muted); font-size: 13px; line-height: 1.9; padding-left: 12px; }
+    .reading-item::before { content: "· "; color: var(--green-dim); }
+
+    /* ── OBJECTIONS ── */
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      align-items: center;
+    }
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 11px;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.08em;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: var(--green-dim); color: var(--text); }
+    .filter-btn.active { background: var(--green-bg); border-color: var(--green-dim); color: var(--green); }
+    #obj-search {
+      background: var(--dark3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: 'Crimson Pro', serif;
+      outline: none;
+      margin-left: auto;
+      width: 200px;
+      transition: border-color 0.2s;
+    }
+    #obj-search:focus { border-color: var(--green-dim); }
+    #obj-search::placeholder { color: var(--muted); }
+
+    .obj-row {
+      background: var(--dark2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .obj-row:hover { border-color: var(--border); }
+    .obj-row.open { border-color: var(--green-dim); }
+    .obj-row-head {
+      display: flex;
+      align-items: center;
+      padding: 14px 18px;
+      gap: 12px;
+    }
+    .obj-tag {
+      background: var(--green-bg);
+      color: var(--green-dim);
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+    }
+    .obj-row-q { color: var(--text); font-size: 15px; font-style: italic; flex: 1; }
+    .chevron { color: var(--muted); font-size: 11px; transition: transform 0.2s; }
+    .obj-row.open .chevron { transform: rotate(180deg); }
+    .obj-row-body {
+      display: none;
+      padding: 0 18px 16px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.85;
+    }
+    .obj-row.open .obj-row-body { display: block; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 16px;
+      color: var(--muted);
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+      letter-spacing: 0.05em;
+    }
+    footer a { color: var(--green-dim); text-decoration: none; }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--dark); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      header { padding: 0 12px; height: auto; flex-wrap: wrap; padding: 10px 12px; gap: 8px; }
+      nav { width: 100%; justify-content: center; }
+      .nav-btn { font-size: 10px; padding: 5px 10px; }
+      main { padding: 16px 12px; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div>
+      <div class="logo">ALWAYS READY</div>
+      <div class="tagline">1 Peter 3:15 · Presuppositional Apologetics</div>
+    </div>
+    <nav>
+      <button class="nav-btn active" data-tab="chat">Make Your Defense</button>
+      <button class="nav-btn" data-tab="topics">The Case</button>
+      <button class="nav-btn" data-tab="objections">Objection Handler</button>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ── CHAT TAB ── -->
+    <div id="tab-chat" class="tab active">
+      <div id="chat-messages">
+        <div class="chat-empty" id="chat-empty">
+          <div class="chat-empty-icon">✦</div>
+          <div class="chat-empty-title">Make Your Defense</div>
+          <div class="chat-empty-text">
+            Ask any apologetics question. Responses are grounded in presuppositional method — exposing worldview assumptions and showing that the triune God is the necessary precondition of all knowledge.
+          </div>
+          <div class="suggestions">
+            <button class="sugg-btn">How do I respond to "there's no evidence for God"?</button>
+            <button class="sugg-btn">Explain the Transcendental Argument simply</button>
+            <button class="sugg-btn">My friend says evil disproves God — what do I say?</button>
+            <button class="sugg-btn">What makes presuppositionalism different from evidentialism?</button>
+          </div>
+        </div>
+      </div>
+      <div class="input-row">
+        <textarea id="chat-input" rows="2" placeholder="Ask an apologetics question…"></textarea>
+        <button id="send-btn">SEND</button>
+      </div>
+    </div>
+
+    <!-- ── TOPICS TAB ── -->
+    <div id="tab-topics" class="tab">
+      <div class="topics-grid" id="topics-grid"></div>
+      <div id="topic-detail" style="display:none"></div>
+    </div>
+
+    <!-- ── OBJECTIONS TAB ── -->
+    <div id="tab-objections" class="tab">
+      <div class="filter-row" id="filter-row">
+        <button class="filter-btn active" data-tag="All">All</button>
+        <input type="text" id="obj-search" placeholder="Search objections…" />
+      </div>
+      <div id="objections-list"></div>
+    </div>
+
+  </main>
+
+  <footer>
+    A ministry of <a href="https://thekiln.org" target="_blank">The Kiln Ministries</a> &nbsp;·&nbsp; apologetics.thekiln.org
+  </footer>
+
+</div>
+
+<script>
+// ── SYSTEM PROMPT ──
+const SYSTEM_PROMPT = `You are an apologetics assistant trained in presuppositional apologetics, drawing on the work of Cornelius Van Til, Greg Bahnsen, John Frame, and Vern Poythress.
+
+Your approach:
+1. Never grant the skeptic's assumed neutrality. All reasoning presupposes some ultimate authority.
+2. Expose the internal incoherence of non-Christian worldviews — they cannot account for logic, morality, or science without borrowing from the Christian worldview.
+3. Use the Transcendental Argument for God (TAG): The existence of the triune God of Scripture is the necessary precondition for the intelligibility of human experience.
+4. Engage with charity and clarity — you are speaking to both believers and honest seekers.
+5. Ground your answers in Scripture while engaging philosophically.
+6. Be conversational but intellectually serious. Avoid jargon without explanation.
+
+When answering objections: first restate the objection charitably, then expose its presuppositional commitments, then offer the Christian response, then show what is actually at stake.
+
+Keep responses focused — 3 to 5 paragraphs unless depth is required.`;
+
+// ── TOPICS DATA ──
+const TOPICS = [
+  {
+    id: "tag", icon: "◈",
+    title: "The Transcendental Argument",
+    subtitle: "The impossibility of the contrary",
+    summary: "The TAG argues that the existence of the triune God of Scripture is the necessary precondition for the very possibility of human knowledge, logic, and science.",
+    keyArgument: "Logic, mathematics, and the uniformity of nature cannot be accounted for on any non-Christian worldview. The skeptic must secretly borrow from the Christian worldview to even raise objections against it. God's existence is not just probable — it is the precondition of intelligibility itself.",
+    objections: [
+      { q: "Can't logic exist without God?", a: "Logic is universal, invariant, and abstract — properties that require a mind to ground them. On atheism, the universe is material and contingent. Universal abstract laws have no home in a purely material cosmos. The Christian can account for logic; the materialist must assume it without justification." },
+      { q: "Isn't this just circular reasoning?", a: "Every worldview reasons in a circle at the level of its ultimate standard. The question is which circle is self-consistent and which defeats itself. The Christian circle (Scripture → all things) is the only one that doesn't saw off the branch it sits on." },
+    ],
+    reading: ["Van Til, The Defense of the Faith", "Bahnsen, Always Ready", "Frame, Apologetics: A Justification of Christian Belief"],
+  },
+  {
+    id: "evil", icon: "✦",
+    title: "The Problem of Evil",
+    subtitle: "Borrowing capital to argue against God",
+    summary: "The problem of evil is often the skeptic's strongest card. The presuppositional response turns it: evil as a meaningful category presupposes the very God being denied.",
+    keyArgument: "To call something truly evil, you must have a standard of good that is objective, universal, and binding. Where does that standard come from on atheism? Evolution produces survival instincts, not moral obligations. The skeptic borrows the Christian concept of objective evil to argue against the God who grounds it.",
+    objections: [
+      { q: "How can a good God allow suffering?", a: "This question assumes a standard of 'good' that transcends human opinion. But on atheism, there is no such standard — there is only what helps the species survive. The atheist must borrow from the Christian moral framework to even formulate the complaint." },
+      { q: "The Bible records God commanding terrible things.", a: "This is an internal critique requiring engagement with the specific texts and their context, which is legitimate. But note the critic still assumes a moral standard by which to judge — a standard they cannot ground in their own worldview." },
+    ],
+    reading: ["Plantinga, God Freedom and Evil", "Bahnsen, Always Ready (ch. 14)", "Frame, Apologetics"],
+  },
+  {
+    id: "resurrection", icon: "✣",
+    title: "The Resurrection",
+    subtitle: "History's hinge point",
+    summary: "The bodily resurrection of Jesus Christ is the cornerstone of Christian apologetics. It is a historical claim that demands historical engagement.",
+    keyArgument: "Even skeptical scholars grant the minimal facts: Jesus died by crucifixion, the disciples sincerely believed they saw him risen, Paul and James were converted by appearances, and the tomb was empty. The resurrection is the best explanation of these facts — not a legend, not a hallucination, not a theft.",
+    objections: [
+      { q: "Miracles are impossible by definition.", a: "This is a philosophical assumption, not a historical argument. If God exists, miracles are possible. The question of whether God exists is prior. The presuppositional apologist notes that science assumes the uniformity of nature — but that assumption itself needs grounding, which only theism provides." },
+      { q: "The disciples hallucinated.", a: "Group hallucinations of a specific, interactive, physical person across multiple occasions and 500 witnesses is not a psychological possibility. The hallucination hypothesis is more miraculous than the resurrection." },
+    ],
+    reading: ["Habermas & Licona, The Case for the Resurrection", "N.T. Wright, The Resurrection of the Son of God", "Bavinck, Reformed Dogmatics Vol. 3"],
+  },
+  {
+    id: "morality", icon: "⬡",
+    title: "Morality Without God",
+    subtitle: "The borrowed capital argument",
+    summary: "Can atheism ground objective morality? Presuppositionalists argue no — and that the atheist's own moral intuitions are evidence for the Christian worldview.",
+    keyArgument: "Moral realism — the view that some things are objectively wrong regardless of opinion — is incompatible with a Godless material universe. Evolution explains why we feel certain things, not why those feelings are binding. Every time a skeptic says 'that's wrong,' they write a check their worldview cannot cash.",
+    objections: [
+      { q: "Secular humanism provides a moral framework.", a: "Secular humanism says human flourishing is the standard — but why is human flourishing morally obligatory? Why not the flourishing of the strongest? You need an external, transcendent ground for the claim that humans have dignity. Christianity provides it: the Imago Dei." },
+      { q: "We evolved moral intuitions that work.", a: "Evolved intuitions explain behavior, not obligation. A wolf evolved to hunt; we don't say the wolf is morally obligated to hunt. Evolution can produce the feeling of guilt — it cannot produce genuine guilt." },
+    ],
+    reading: ["Bahnsen, Always Ready", "Frame, The Doctrine of the Christian Life", "C.S. Lewis, Mere Christianity (Book 1)"],
+  },
+  {
+    id: "science", icon: "◎",
+    title: "Science & the Christian Mind",
+    subtitle: "Preconditions of intelligibility",
+    summary: "Science assumes a rational, orderly universe that the human mind can understand. These assumptions make sense on Christian theism — and are philosophically groundless without it.",
+    keyArgument: "The uniformity of nature, the reliability of our cognitive faculties, and the match between mathematics and physical reality all presuppose a rational Creator who made both the world and our minds. Hume showed that induction cannot be justified empirically. Only a theistic framework can ground the assumptions science requires.",
+    objections: [
+      { q: "Science has disproved religion.", a: "Science cannot address questions of ultimate meaning, value, or the preconditions of its own possibility. Science is a method, not a metaphysic. The question of why the universe is rationally structured and why our minds can grasp that structure is a philosophical question — one that Christianity answers." },
+      { q: "Evolution explains human cognition.", a: "Evolution selected for survival, not truth. A brain wired for survival may produce reliable beliefs about immediate dangers — but there is no evolutionary reason to trust it on quantum mechanics, mathematics, or the existence of God. Plantinga's evolutionary argument against naturalism presses this point powerfully." },
+    ],
+    reading: ["Plantinga, Where the Conflict Really Lies", "Van Til, A Survey of Christian Epistemology", "Poythress, Redeeming Science"],
+  },
+];
+
+// ── OBJECTIONS DATA ──
+const OBJECTIONS = [
+  { tag: "Existence", q: "There's no evidence for God.", a: "This assumes evidence must be empirical and neutral. But what counts as evidence is itself a philosophical question. The TAG argues that the very existence of evidence — of a rational, orderly world our minds can access — presupposes God." },
+  { tag: "Existence", q: "Who created God?", a: "This question assumes everything needs a cause. But the causal principle applies to contingent things — not to a necessarily existing, uncaused Being. The question smuggles in a finite concept of God." },
+  { tag: "Existence", q: "Science explains everything without God.", a: "Science explains the mechanics of what happens; it cannot explain why there is something rather than nothing, why the universe is rationally structured, or why our minds can comprehend it. These are philosophical questions that theism answers." },
+  { tag: "Bible", q: "The Bible is full of contradictions.", a: "Specific alleged contradictions require specific responses. But note the presupposition: the critic assumes a standard of consistency by which to judge — a standard that itself needs grounding. We welcome the internal critique and answer it case by case." },
+  { tag: "Bible", q: "The Bible was written by men.", a: "True — and so was every text the critic trusts. The question is whether God superintended those men. That is a theological and historical question to be argued, not dismissed. The canon's reliability is well-attested historically." },
+  { tag: "Bible", q: "The Bible has been changed over centuries.", a: "The manuscript tradition for the New Testament is extraordinary — over 5,800 Greek manuscripts. No other ancient document comes close. Textual critics have a high degree of confidence in the text's integrity. The charge of wholesale corruption is not supported by the evidence." },
+  { tag: "Jesus", q: "Jesus was just a good teacher.", a: "C.S. Lewis's trilemma applies: Jesus claimed to be God, to forgive sins, and to judge the world. A merely good teacher does not make those claims. The historical evidence for his resurrection forces a decision about who he actually was." },
+  { tag: "Jesus", q: "Jesus never existed.", a: "This is the most fringe position in secular scholarship. Historians across the spectrum — including atheists like Bart Ehrman — affirm the historical existence of Jesus of Nazareth. The evidence is better than for many accepted ancient figures." },
+  { tag: "Jesus", q: "Jesus was just one of many dying-and-rising gods.", a: "The alleged parallels (Osiris, Mithras, etc.) are largely fabricated or wildly overstated — a product of early 20th-century comparative religion that has since been thoroughly critiqued. The resurrection accounts are historically grounded in a specific time, place, and community." },
+  { tag: "Logic", q: "Logic is just a human invention.", a: "If logic is a human invention, it can be revised or abandoned — making your objection itself logically invalid. Logic must be universal and invariant to do its work. That requires a transcendent rational Mind to ground it. The Christian has that; the materialist does not." },
+  { tag: "Logic", q: "You can't use reason to prove God.", a: "This objection uses reason to argue against reason's application to theology — which is self-defeating. The presuppositionalist is not trying to reason to God as a conclusion; they are arguing that God is the necessary precondition for reason itself." },
+  { tag: "Evil", q: "A good God wouldn't allow cancer.", a: "This assumes a standard of 'good' that is objective and transcendent. On atheism, cancer is just neutral chemistry — nature is not cruel, it is indifferent. The moment you call it morally wrong, you have borrowed from a theistic framework." },
+  { tag: "Evil", q: "God could have made a world without suffering.", a: "This assumes we can know what a world created for God's glory and human redemption requires. It also ignores that much suffering is bound up with the genuine freedom of creatures and the consequences of the Fall — a theological framework that must be engaged on its own terms." },
+  { tag: "Exclusivity", q: "Christianity is just one of thousands of religions.", a: "Quantity doesn't determine truth. Christianity makes specific historical claims — particularly the resurrection — that can be tested. Many religions contradict each other; they cannot all be right, but they can all be wrong. The question is which, if any, is true." },
+  { tag: "Exclusivity", q: "You only believe because you were raised that way.", a: "This genetic fallacy applies equally to the skeptic: you only disbelieve because of your upbringing, culture, or intellectual environment. The origin of a belief is irrelevant to its truth. What matters is whether the belief is true — and that is what we are here to discuss." },
+];
+
+// ── STATE ──
+let chatMessages = [];
+let loading = false;
+let selectedTopicId = null;
+let expandedObjIndex = null;
+let objFilter = "All";
+
+// ── INIT ──
+document.addEventListener("DOMContentLoaded", () => {
+  setupTabs();
+  setupChat();
+  renderTopics();
+  renderObjections();
+  setupObjFilters();
+});
+
+// ── TABS ──
+function setupTabs() {
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("tab-" + tab).classList.add("active");
+    });
+  });
+}
+
+// ── CHAT ──
+function setupChat() {
+  const input = document.getElementById("chat-input");
+  const sendBtn = document.getElementById("send-btn");
+
+  document.querySelectorAll(".sugg-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      input.value = btn.textContent;
+      input.focus();
+    });
+  });
+
+  sendBtn.addEventListener("click", sendMessage);
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+}
+
+async function sendMessage() {
+  if (loading) return;
+  const input = document.getElementById("chat-input");
+  const text = input.value.trim();
+  if (!text) return;
+
+  // Hide empty state
+  const empty = document.getElementById("chat-empty");
+  if (empty) empty.remove();
+
+  chatMessages.push({ role: "user", content: text });
+  input.value = "";
+  renderChatMessages();
+  showTyping();
+
+  loading = true;
+  document.getElementById("send-btn").disabled = true;
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: chatMessages,
+      }),
+    });
+    const data = await res.json();
+    const reply = data.content?.find(b => b.type === "text")?.text || "No response received.";
+    chatMessages.push({ role: "assistant", content: reply });
+  } catch (e) {
+    chatMessages.push({ role: "assistant", content: "Error reaching the server. Please try again." });
+  }
+
+  loading = false;
+  document.getElementById("send-btn").disabled = false;
+  renderChatMessages();
+}
+
+function renderChatMessages() {
+  const container = document.getElementById("chat-messages");
+  // Remove typing indicator
+  const typing = container.querySelector(".msg-typing");
+  if (typing) typing.remove();
+  // Render messages
+  container.innerHTML = "";
+  chatMessages.forEach(m => {
+    const div = document.createElement("div");
+    div.className = m.role === "user" ? "msg-user" : "msg-ai";
+    div.textContent = m.content;
+    container.appendChild(div);
+  });
+  container.scrollTop = container.scrollHeight;
+}
+
+function showTyping() {
+  const container = document.getElementById("chat-messages");
+  const div = document.createElement("div");
+  div.className = "msg-typing";
+  div.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+// ── TOPICS ──
+function renderTopics() {
+  const grid = document.getElementById("topics-grid");
+  TOPICS.forEach(t => {
+    const card = document.createElement("div");
+    card.className = "topic-card";
+    card.dataset.id = t.id;
+    card.innerHTML = `<div class="topic-icon">${t.icon}</div><div class="topic-title">${t.title}</div><div class="topic-sub">${t.subtitle}</div>`;
+    card.addEventListener("click", () => toggleTopic(t.id));
+    grid.appendChild(card);
+  });
+}
+
+function toggleTopic(id) {
+  const detail = document.getElementById("topic-detail");
+  if (selectedTopicId === id) {
+    selectedTopicId = null;
+    detail.style.display = "none";
+    document.querySelectorAll(".topic-card").forEach(c => c.classList.remove("selected"));
+    return;
+  }
+  selectedTopicId = id;
+  document.querySelectorAll(".topic-card").forEach(c => {
+    c.classList.toggle("selected", c.dataset.id === id);
+  });
+  const t = TOPICS.find(x => x.id === id);
+  detail.style.display = "block";
+  detail.innerHTML = `
+    <div class="detail-title">${t.icon} ${t.title}</div>
+    <div class="detail-sub">${t.subtitle}</div>
+    <div class="section-label">Overview</div>
+    <div class="body-text">${t.summary}</div>
+    <div class="section-label">The Key Argument</div>
+    <div class="body-text">${t.keyArgument}</div>
+    <div class="section-label">Common Objections</div>
+    ${t.objections.map(o => `<div class="obj-card"><div class="obj-q">"${o.q}"</div><div class="obj-a">${o.a}</div></div>`).join("")}
+    <div class="section-label">Further Reading</div>
+    ${t.reading.map(r => `<div class="reading-item">${r}</div>`).join("")}
+  `;
+  detail.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// ── OBJECTIONS ──
+function setupObjFilters() {
+  const tags = ["All", ...new Set(OBJECTIONS.map(o => o.tag))];
+  const row = document.getElementById("filter-row");
+  const search = document.getElementById("obj-search");
+  // Insert filter buttons before search
+  tags.forEach(tag => {
+    if (tag === "All") return; // already exists
+    const btn = document.createElement("button");
+    btn.className = "filter-btn";
+    btn.dataset.tag = tag;
+    btn.textContent = tag;
+    btn.addEventListener("click", () => setFilter(tag));
+    row.insertBefore(btn, search);
+  });
+  document.querySelector('.filter-btn[data-tag="All"]').addEventListener("click", () => setFilter("All"));
+  search.addEventListener("input", () => renderObjections());
+}
+
+function setFilter(tag) {
+  objFilter = tag;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.toggle("active", b.dataset.tag === tag));
+  renderObjections();
+}
+
+function renderObjections() {
+  const search = (document.getElementById("obj-search")?.value || "").toLowerCase();
+  const list = document.getElementById("objections-list");
+  list.innerHTML = "";
+  const filtered = OBJECTIONS.filter(o => {
+    const matchTag = objFilter === "All" || o.tag === objFilter;
+    const matchSearch = !search || o.q.toLowerCase().includes(search) || o.a.toLowerCase().includes(search);
+    return matchTag && matchSearch;
+  });
+  filtered.forEach((o, i) => {
+    const row = document.createElement("div");
+    row.className = "obj-row";
+    row.innerHTML = `
+      <div class="obj-row-head">
+        <span class="obj-tag">${o.tag}</span>
+        <span class="obj-row-q">"${o.q}"</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="obj-row-body">${o.a}</div>
+    `;
+    row.addEventListener("click", () => {
+      const isOpen = row.classList.contains("open");
+      document.querySelectorAll(".obj-row").forEach(r => r.classList.remove("open"));
+      if (!isOpen) row.classList.add("open");
+    });
+    list.appendChild(row);
+  });
+}
+</script>
+</body>
+</html>
